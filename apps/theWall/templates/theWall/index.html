@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            
+            background: black;  
+        }
+        *{
+            color:rgb(175, 172, 13);
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        .Post{
+            background: rgb(30, 94, 155);
+            margin-top:10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome {{request.session.username}}!  <a href="{% url 'login:logout' %}">Logout</a></h1>
+    {% if messages %}
+        {% for message in messages %}
+            {% if welcome in message.tag %}
+                <p{% if message.tags %} class="{{ message.extra_tags }}"{% endif %}>{{ message }}</p>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <form action="{% url 'theWall:addPost' %}" method="POST">
+        {% csrf_token %}
+        <textarea name="postText"></textarea>
+        <input type="submit" value="Post">
+    </form>
+    {% for post in posts %}
+    <div class = "Post">
+        <p>{{post.userId.first_name}} {{post.updated_at}}</p>
+        <h1>{{post.text}}</h1>
+        {% if post.userId.id == request.session.userid %}
+            <a href="{% url 'theWall:deletePost' idNum=post.id %}">Delete Post</a> | <a href="{% url 'theWall:toEditPost' idNum=post.id %}">Edit Post</a>
+            {% for message in messages %}
+            {% if post.id == message.extra_tags %}
+            <p class="{{ message.extra_tags }}">{{ message }}</p>
+            {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% for comment in post.comments.all %}
+            <p>{{comment.text}} {{comment.userId.first_name}} {{comment.updated_at}}</p>
+            {% if comment.userId.id == request.session.userid %}
+                <a href="{% url 'theWall:deleteComment' idNum=comment.id %}">Delete Comment</a> | <a href="{% url 'theWall:toEditComment' idNum=comment.id %}">Edit Comment</a>
+                {% for message in messages %}
+                    {% if comment.id == message.extra_tags %}
+                    <p class="{{ message.extra_tags }}">{{ message }}</p>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <form action="{% url 'theWall:createComment' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="postId" value="{{post.id}}">
+            <textarea name="comment"></textarea>
+            <input type="submit" value="Comment">
+        </form>
+    </div>
+    {% endfor %}
+</body>
+</html>

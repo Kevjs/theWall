@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Edit Comment</h1>
+    <h2>
+        <form action="{% url 'theWall:editComment' idNum=comment.id %}" method="POST">
+            {% csrf_token %}
+            <textarea name="commentText">{{comment.text}}</textarea>
+            <input type="submit" value="Edit Comment">
+        </form>
+    </h2>
+    <h3>Comment on post: </h3>
+    <p>{{post.text}}</p>
+    <a href="{% url 'theWall:home' %}">Go back</a>
+</body>
+</html>
